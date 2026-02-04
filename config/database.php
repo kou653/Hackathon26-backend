@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
-   $DATABASE_URL = parse_url('postgres://waserzsvdxvrul:d2f62e9a3c7d9dacc466319bad5553d078ad06607a75c2d4e128268fea24bed0@ec2-18-215-96-22.compute-1.amazonaws.com:5432/d8fjlqtbk2ha2v');
+//    $DATABASE_URL = parse_url('postgres://waserzsvdxvrul:d2f62e9a3c7d9dacc466319bad5553d078ad06607a75c2d4e128268fea24bed0@ec2-18-215-96-22.compute-1.amazonaws.com:5432/d8fjlqtbk2ha2v');
 return [
 
     /*
@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'pgsql'),
+    'default' => env('DB_CONNECTION', 'mysql'),
     /*
     |--------------------------------------------------------------------------
     | Database Connections
@@ -44,7 +44,7 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
+            // 'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
@@ -62,18 +62,18 @@ return [
             ]) : [],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => $DATABASE_URL["host"],
-            'port' => $DATABASE_URL["port"],
-            'database' => ltrim($DATABASE_URL["path"], "/"),
-            'username' => $DATABASE_URL["user"],
-            'password' => $DATABASE_URL["pass"],
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
-            'sslmode' => 'require',
-        ],
+        // 'pgsql' => [
+        //     'driver' => 'pgsql',
+        //     'host' => $DATABASE_URL["host"],
+        //     'port' => $DATABASE_URL["port"],
+        //     'database' => ltrim($DATABASE_URL["path"], "/"),
+        //     'username' => $DATABASE_URL["user"],
+        //     'password' => $DATABASE_URL["pass"],
+        //     'charset' => 'utf8',
+        //     'prefix' => '',
+        //     'schema' => 'public',
+        //     'sslmode' => 'require',
+        // ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
