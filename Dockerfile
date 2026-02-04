@@ -33,7 +33,9 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 
 # Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
+RUN php artisan config:clear \
+ && php artisan cache:clear
+RUN php artisan config:cache
 # Copier le projet
 COPY . /var/www/html
 WORKDIR /var/www/html

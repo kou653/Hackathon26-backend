@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
-   $DATABASE_URL = parse_url('postgres://waserzsvdxvrul:d2f62e9a3c7d9dacc466319bad5553d078ad06607a75c2d4e128268fea24bed0@ec2-18-215-96-22.compute-1.amazonaws.com:5432/d8fjlqtbk2ha2v');
+//    $DATABASE_URL = parse_url('postgres://waserzsvdxvrul:d2f62e9a3c7d9dacc466319bad5553d078ad06607a75c2d4e128268fea24bed0@ec2-18-215-96-22.compute-1.amazonaws.com:5432/d8fjlqtbk2ha2v');
 return [
 
     /*
@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'pgsql'),
+    'default' => env('DB_CONNECTION', 'mysql'),
     /*
     |--------------------------------------------------------------------------
     | Database Connections
@@ -44,12 +44,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT', 3306),
+            'database' => env('DB_DATABASE'),
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
@@ -57,23 +56,23 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? [
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ] : [],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => $DATABASE_URL["host"],
-            'port' => $DATABASE_URL["port"],
-            'database' => ltrim($DATABASE_URL["path"], "/"),
-            'username' => $DATABASE_URL["user"],
-            'password' => $DATABASE_URL["pass"],
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
-            'sslmode' => 'require',
-        ],
+        // 'pgsql' => [
+        //     'driver' => 'pgsql',
+        //     'host' => $DATABASE_URL["host"],
+        //     'port' => $DATABASE_URL["port"],
+        //     'database' => ltrim($DATABASE_URL["path"], "/"),
+        //     'username' => $DATABASE_URL["user"],
+        //     'password' => $DATABASE_URL["pass"],
+        //     'charset' => 'utf8',
+        //     'prefix' => '',
+        //     'schema' => 'public',
+        //     'sslmode' => 'require',
+        // ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
