@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
         $masters = [
             'MASTER 1 TELECOM',
             'MASTER 1 SIGL',
-            'MASTER 1 SITW',
+            'MASTER 1 CSIA',
             'MASTER 1 MBDS',
             'MASTER 1 BIHAR',
             'MASTER 2 TELECOM',
@@ -47,8 +47,8 @@ class AdminSeeder extends Seeder
         // Même structure pour tous les niveaux : libellé du niveau => liste des classes (copier/coller et modifier)
         $classesParNiveau = [
             'Niveau 1' => ['ENTD', 'SRIT 1A', 'SRIT 1B', 'SRIT 1C', 'TWIN 1', 'MP2I A', 'MP2I B'],
-            'Niveau 2 Développement' => ['SRIT 2A', 'SRIT 2B', 'SIGL 2', 'RTEL 2', 'TWIN 2', 'SRIT 3A', 'SRIT 3B', 'SIGL 3', 'RTEL 3', 'TWIN 3', 'DASI', 'MPI'],
-            'Niveau 2 Télécom' => ['SRIT 2A', 'SRIT 2B', 'SIGL 2', 'RTEL 2', 'TWIN 2', 'SRIT 3A', 'SRIT 3B', 'SIGL 3', 'RTEL 3', 'TWIN 3', 'DASI', 'MPI'],
+            'Niveau 2 Développement' => ['SRIT 2A', 'SRIT 2B', 'SIGL 2', 'RTEL 2', 'TWIN 2', 'SRIT 3A', 'SRIT 3B', 'SIGL 3', 'RTEL 3', 'TWIN 3', 'DASI', 'MPI', 'CSIA'],
+            'Niveau 2 Télécom' => ['SRIT 2A', 'SRIT 2B', 'SIGL 2', 'RTEL 2', 'TWIN 2', 'SRIT 3A', 'SRIT 3B', 'SIGL 3', 'RTEL 3', 'TWIN 3', 'DASI', 'MPI', 'CSIA'],
             'Niveau 3 Télécom' => $masters,
             'Niveau 3 Développement' => $masters,
             'Niveau 3 Sécurité' => $masters,
