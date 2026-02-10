@@ -264,12 +264,16 @@ class InscriptionController extends Controller
                     'password' => Hash::make("NotreSDI25@TH12345")
                 ]);
 
+                $classe_chef_libelle = $request->esatic == 1
+                    ? (Classe::find($request->classe_chef)->libelle ?? $request->classe_chef)
+                    : $request->classe_chef;
+
                 $etudiant1 = Etudiant::create([
                     'nom' => strtoupper($request->nom_chef),
                     'prenom' => strtoupper($request->prenom_chef),
                     'matricule' => trim($matricule_chef),
                     'genre' => $request->genre_chef,
-                    'classe' => Classe::find($request->classe_chef)->libelle,
+                    'classe' => $classe_chef_libelle,
                     'user_id' => $user1->id
                 ]);
 
@@ -281,12 +285,16 @@ class InscriptionController extends Controller
                     'password' => Hash::make("NotreSDI25@TH12345")
                 ]);
 
+                $classe_m2_libelle = $request->esatic == 1
+                    ? (Classe::find($request->classe_m2)->libelle ?? $request->classe_m2)
+                    : $request->classe_m2;
+
                 $etudiant2 = Etudiant::create([
                     'nom' => strtoupper($request->nom_m2),
                     'prenom' => strtoupper($request->prenom_m2),
                     'matricule' => trim($matricule_m2),
                     'genre' => $request->genre_m2,
-                    'classe' => Classe::find($request->classe_m2)->libelle,
+                    'classe' => $classe_m2_libelle,
                     'user_id' => $user2->id
                 ]);
 
@@ -298,12 +306,16 @@ class InscriptionController extends Controller
                     'password' => Hash::make("NotreSDI25@TH12345")
                 ]);
 
+                $classe_m3_libelle = $request->esatic == 1
+                    ? (Classe::find($request->classe_m3)->libelle ?? $request->classe_m3)
+                    : $request->classe_m3;
+
                 $etudiant3 = Etudiant::create([
                     'nom' => strtoupper($request->nom_m3),
                     'prenom' => strtoupper($request->prenom_m3),
                     'matricule' => trim($matricule_m3),
                     'genre' => $request->genre_m3,
-                    'classe' => Classe::find($request->classe_m3)->libelle,
+                    'classe' => $classe_m3_libelle,
                     'user_id' => $user3->id
                 ]);
 
