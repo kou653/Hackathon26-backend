@@ -3,29 +3,25 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-use Illuminate\Support\Facades\Log;
-
 class HttpsProtocol {
 
     public function handle($request, Closure $next)
     {
-        
         $url = $request->url();
-        
-        if(env("APP_ENV") == "production"){
 
-            if($_SERVER["HTTP_X_FORWARDED_PROTO"] == "http"){
+        if (env("APP_ENV") === "production") {
 
-                $result = explode("://",$url);
-                
-                $secure_url = "https://" . $result[1];
-                
+            // Vérifie d'abord si la clé existe
+            $proto = $_SERVER["HTTP_X_FORWARDED_PROTO"] ?? null;
+
+            if ($proto === "http") {
+                // Redirige vers HTTPS
+                $secure_url = preg_replace("/^http:/i", "https:", $url);
                 return redirect($secure_url);
-
             }
-        }   
+        }
 
-        return $next($request); 
+        return $next($request);
     }
 }
 ?>

@@ -30,12 +30,8 @@ class GroupeController extends Controller
                 ->where('statut', $request->statut)
                 ->get();
 
-            foreach ($equipes as $eq) {
-                if (Classe::where('libelle', $eq->participants[0]->etudiant->classe)->first()->esatic == 0)
-                    $eq->is_extern = true;
-                else
-                    $eq->is_extern = false;
-            }
+            
+
             $data = [
                 'niveaux' => Niveau::all(),
                 'equipes' => $equipes,

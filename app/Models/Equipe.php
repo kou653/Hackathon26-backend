@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Models\Classe;
 class Equipe extends Model
 {
     use HasFactory;
 
     public $guarded = [] ;
+
+    protected $appends = ['is_extern'];
 
     public function participants()
     {
@@ -40,5 +42,23 @@ class Equipe extends Model
 
         
         return $salle; 
+    }
+    public function getIsExternAttribute()
+{
+        $participant = $this->participants->first();
+
+        // Aucun participant ou étudiant → externe
+        if (!$participant || !$participant->etudiant) {
+            return true;
+        }
+
+        // Recherche de la classe
+        $classe = Classe::where(
+            'libelle',
+            $participant->etudiant->classe
+        )->first();
+
+        // Classe inexistante ou non ESATIC → externe
+        return !$classe || $classe->esatic == 0;
     }
 }
