@@ -19,36 +19,57 @@ class GroupeController extends Controller
     public function rendergroupe(Request $request)
     {
         $hackaton = ModelsHackaton::where('inscription', 1)->first();
-        if (!$hackaton) {
-            $data = [
-                'equipes' => [],
-                'niveaux' => Niveau::all()
-            ];
-        } else {
-            $equipes = Equipe::with('participants.etudiant', 'niveau', 'qsession.quiz')->where('hackaton_id', $hackaton->id)
-                ->where('niveau_id', $request->niveauId)
-                ->where('statut', $request->statut)
-                ->get();
 
-            // foreach ($equipes as $eq) {
-            //     if (Classe::where('libelle', $eq->participants[0]->etudiant->classe)->first()->esatic == 0)
-            //         $eq->is_extern = true;
-            //     else
-            //         $eq->is_extern = false;
-            // }
-            $data = [
-                'niveaux' => Niveau::all(),
-                'equipes' => $equipes,
-            ];
+        if (!$hackaton) {
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'equipes' => [],
+                    'niveaux' => Niveau::all()
+                ]
+            ]);
         }
 
-        $response = [
-            'status' => true,
-            'data' => $data,
-        ];
+        $equipes = Equipe::with([
+            'participants.etudiant',
+            'niveau',
+            'qsession.quiz'
+        ])
+            ->where('hackaton_id', $hackaton->id)
+            ->where('niveau_id', $request->niveauId)
+            ->where('statut', $request->statut)
+            ->get();
 
-        return response()->json($response);
+        foreach ($equipes as $equipe) {
+
+            foreach ($equipe->participants as $participant) {
+
+                $etudiant = $participant->etudiant;
+
+                // ✅ CAS 1 : étudiant ESATIC (il a une classe)
+                if ($etudiant->classe) {
+                    $classe = Classe::where('libelle', $etudiant->classe)->first();
+
+                    $etudiant->type = 'interne';
+                    $etudiant->origine = $classe?->libelle ?? 'Classe inconnue';
+                }
+                // ✅ CAS 2 : étudiant EXTERNE (pas de classe)
+                else {
+                    $etudiant->type = 'externe';
+                    $etudiant->origine = $etudiant->ecole ?? 'École externe';
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'niveaux' => Niveau::all(),
+                'equipes' => $equipes
+            ]
+        ]);
     }
+
 
     /*
     {
