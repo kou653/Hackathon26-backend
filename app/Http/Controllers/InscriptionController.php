@@ -356,24 +356,19 @@ class InscriptionController extends Controller
     }
 
     public function enregistrement_render(Request $request)
-    {
-        $data = [
-            'niveaux' => $request->esatic == 1 ? Niveau::with([
-                'classes' => function ($query) {
-                    $query->where('esatic', 1);
-                }
-            ])->get() : Niveau::where("id", ">", 1)->with([
-                    'classes' => function ($query) {
-                        $query->where('esatic', 0);
-                    }
-                ])->get(),
-        ];
+{
+    $data = [
+        'niveaux' => Niveau::with([
+            'classes' => function ($query) use ($request) {
+                $query->where('esatic', $request->esatic);
+            }
+        ])->get(),
+    ];
 
-        $response = [
-            'data' => $data,
-            'status' => true
-        ];
+    return response()->json([
+        'data' => $data,
+        'status' => true
+    ]);
+}
 
-        return response()->json($response);
-    }
 }
