@@ -25,10 +25,20 @@ class GroupeController extends Controller
                 'niveaux' => Niveau::all()
             ];
         } else {
-            $equipes = Equipe::with('participants.etudiant', 'niveau', 'qsession.quiz')->where('hackaton_id', $hackaton->id)
-                ->where('niveau_id', $request->niveauId)
-                ->where('statut', $request->statut)
-                ->get();
+            $query = Equipe::with('participants.etudiant', 'niveau', 'qsession.quiz')
+                ->where('hackaton_id', $hackaton->id)
+                ->where('statut', $request->statut);
+
+            if ($request->niveauId) {
+                // Cas étudiants de l'école
+                $query->where('niveau_id', $request->niveauId);
+            } else {
+                // Cas étudiants externes
+                $query->whereNull('niveau_id');
+            }
+
+            $equipes = $query->get();
+
 
             // foreach ($equipes as $eq) {
             //     if (Classe::where('libelle', $eq->participants[0]->etudiant->classe)->first()->esatic == 0)
