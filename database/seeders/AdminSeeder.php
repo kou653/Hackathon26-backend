@@ -170,7 +170,7 @@ class AdminSeeder extends Seeder
             }
         }
 
-        foreach (Niveau::where('id', '>', 1)->get() as $niv) {
+        foreach (Niveau::all() as $niv) {
             foreach ($classes_externes as $cla) {
                 Classe::firstOrCreate(
                     [
@@ -180,7 +180,7 @@ class AdminSeeder extends Seeder
                     ['esatic' => 0]
                 );
             }
-        }
+}
 
         if (!$user->hasRole('Super@Administrateur')) {
             $user->assignRole('Super@Administrateur');
