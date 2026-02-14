@@ -28,66 +28,72 @@ use Illuminate\Support\Facades\Hash;
 
 class InscriptionController extends Controller
 {
-
+const ADMIN_NAME = 'admin';
     // Log In
     public function login(Request $request)
-    {
-        $credentials = request(['email', 'password']);
-        if (Auth::attempt($credentials)) {
+{
+    $credentials = $request->only('email', 'password');
 
-            $user = $request->user();
-
-
-            $token = $user->createToken('Personal Access Token')->plainTextToken;
-            $membres = [];
-
-            $isparticipant = Auth::user()->etudiant ? true : false;
-            if ($isparticipant) {
-                $user->niveau = $user->etudiant->getEquipe()->niveau;
-                $user->team_qualified = $user->etudiant->getEquipe()->statut;
-                foreach ($user->etudiant->getEquipe()->participants as $participant) {
-                    if ($participant->chef == 1) {
-                        $participant->etudiant["chef"] = 1;
-                    } else {
-                        $participant->etudiant["chef"] = 0;
-                    }
-                    $participant->etudiant["email"] = $participant->etudiant->user->email;
-                    array_push($membres, $participant->etudiant);
-                }
-            }
-
-            $data = [
-                'role' => $isparticipant ? "participant" : "admin",
-                'message' => 'Vous êtes connecté(e)',
-                'accessToken' => $token,
-                'equipe' => $membres,
-                'status' => true,
-                'user' => $user,
-            ];
-
-            $response = [
-                'data' => $data,
-                'status' => true
-            ];
-
-            // if ($isparticipant && $user->etudiant->getEquipe()->statut == 0) {
-            //     $response = [
-            //         'status' => false,
-            //         'message' => 'Désolé, votre équipe n\'est pas sélectionnée'
-            //     ];
-            // }
-
-
-        } else {
-            $response = [
-                'status' => false,
-                'message' => 'Email ou mot de pass incorrect'
-            ];
-        }
-
-        return response()->json($response);
-
+    if (!Auth::attempt($credentials)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Email ou mot de passe incorrect'
+        ]);
     }
+
+    $user = $request->user();
+    $token = $user->createToken('Personal Access Token')->plainTextToken;
+
+    $membres = [];
+    $role = null;
+
+    // ✅ Vérification ADMIN via rôle Spatie
+    if ($user->hasRole('Super@Administrateur')) {
+        $role = 'admin';
+    }
+
+
+    // ✅ Vérification PARTICIPANT
+    elseif ($user->etudiant) {
+        $role = 'participant';
+
+        $equipe = $user->etudiant->getEquipe();
+
+        if ($equipe) {
+            $user->niveau = $equipe->niveau;
+            $user->team_qualified = $equipe->statut;
+
+            foreach ($equipe->participants as $participant) {
+                $etudiant = $participant->etudiant;
+
+                $etudiant->chef = $participant->chef ? 1 : 0;
+                $etudiant->email = $etudiant->user->email;
+
+                $membres[] = $etudiant;
+            }
+        }
+    }
+
+    // ❌ Si ni admin ni participant
+    else {
+        return response()->json([
+            'status' => false,
+            'message' => "Accès non autorisé."
+        ]);
+    }
+
+    return response()->json([
+        'status' => true,
+        'data' => [
+            'role' => $role,
+            'message' => 'Vous êtes connecté(e)',
+            'accessToken' => $token,
+            'equipe' => $membres,
+            'user' => $user,
+        ]
+    ]);
+}
+
 
     // Log Out
     public function logout(Request $request)
