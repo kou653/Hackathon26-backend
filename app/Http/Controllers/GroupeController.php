@@ -17,65 +17,58 @@ class GroupeController extends Controller
 {
     //
     public function rendergroupe(Request $request)
-{
-    $hackaton = ModelsHackaton::where('inscription', 1)->first();
+    {
+        $hackaton = ModelsHackaton::where('inscription', 1)->first();
 
-    if (!$hackaton) {
+        if (!$hackaton) {
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'equipes' => [],
+                    'niveaux' => Niveau::all()
+                ]
+            ]);
+        }
+
+        $equipes = Equipe::with([
+            'participants.etudiant',
+            'niveau',
+            'qsession.quiz'
+        ])
+            ->where('hackaton_id', $hackaton->id)
+            ->where('niveau_id', $request->niveauId)
+            ->where('statut', $request->statut)
+            ->get();
+
+        foreach ($equipes as $equipe) {
+
+            foreach ($equipe->participants as $participant) {
+
+                $etudiant = $participant->etudiant;
+
+                // ✅ CAS 1 : étudiant ESATIC (il a une classe)
+                if ($etudiant->classe) {
+                    $classe = Classe::where('libelle', $etudiant->classe)->first();
+
+                    $etudiant->type = 'interne';
+                    $etudiant->origine = $classe?->libelle ?? 'Classe inconnue';
+                }
+                // ✅ CAS 2 : étudiant EXTERNE (pas de classe)
+                else {
+                    $etudiant->type = 'externe';
+                    $etudiant->origine = $etudiant->ecole ?? 'École externe';
+                }
+            }
+        }
+
         return response()->json([
             'status' => true,
             'data' => [
-                'equipes' => [],
-                'niveaux' => Niveau::all()
+                'niveaux' => Niveau::all(),
+                'equipes' => $equipes
             ]
         ]);
     }
-
-    $equipes = Equipe::with([
-        'participants.etudiant',
-        'niveau',
-        'qsession.quiz'
-    ])
-        ->where('hackaton_id', $hackaton->id)
-        ->where('niveau_id', $request->niveauId)
-        ->where('statut', $request->statut)
-        ->get();
-
-    foreach ($equipes as $equipe) {
-        foreach ($equipe->participants as $participant) {
-
-            $etudiant = $participant->etudiant;
-
-            if (!$etudiant) {
-                // Si le participant n'a pas d'étudiant lié
-                $participant->type = 'inconnu';
-                $participant->origine = 'Non défini';
-                continue;
-            }
-
-            // ✅ CAS 1 : étudiant ESATIC (il a une classe)
-            if (!empty($etudiant->classe)) {
-                $classe = Classe::where('libelle', $etudiant->classe)->first();
-
-                $etudiant->type = 'interne';
-                $etudiant->origine = $classe?->libelle ?? 'Classe inconnue';
-            }
-            // ✅ CAS 2 : étudiant EXTERNE (pas de classe)
-            else {
-                $etudiant->type = 'externe';
-                $etudiant->origine = $etudiant->ecole ?? 'École externe';
-            }
-        }
-    }
-
-    return response()->json([
-        'status' => true,
-        'data' => [
-            'niveaux' => Niveau::all(),
-            'equipes' => $equipes
-        ]
-    ]);
-}
-
 
 
     /*
