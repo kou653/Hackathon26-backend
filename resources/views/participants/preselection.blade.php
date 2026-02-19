@@ -28,7 +28,7 @@
                     </p>
                     <p class="text-center mt-4">
                         Ce quiz est composé de {{sizeof(Auth::user()->etudiant->getEquipe()->qsession->quiz->questions)}} questions. <br>
-                        <span class="text-red-600">>Vous disposez de 17 secondes par question</span> <br>
+                        <span class="text-red-600">>Vous disposez de 10 secondes par question</span> <br>
                         <span class="text-red-600">>Les questions apparaissent une et une seule fois</span> <br>
                         <span class="text-red-600">>Si vous rafraichissez ou quittez la page durant le test, seules les questions <br>
                             auquelles vous avez répondues sont prises en compte et votre test prend fin.
@@ -202,7 +202,7 @@
                             else
                                 Livewire.emit('storeAndExit')
 
-                            sec = 18
+                            sec = 11
                         }
 
                         if (sec < 10)
