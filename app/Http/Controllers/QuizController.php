@@ -87,14 +87,14 @@ class QuizController extends Controller
         $user = Auth::user();
         $canpasstest = 0;
 
-        if ($user->etudiant->getEquipe()->niveau_id != 1) {
-            return response()->json([
-                'status' => true,
-                'data' => [
-                    'canpasstest' => 1   // niveau non autorisé
-                ]
-            ]);
-        }
+        // if ($user->etudiant->getEquipe()->niveau_id != 1) {
+        //     return response()->json([
+        //         'status' => true,
+        //         'data' => [
+        //             'canpasstest' => 1   // niveau non autorisé
+        //         ]
+        //     ]);
+        // }
 
         
         if (!$user->etudiant->getEquipe()->niveau->quiz_available) {
