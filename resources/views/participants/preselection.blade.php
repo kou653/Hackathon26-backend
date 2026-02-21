@@ -28,7 +28,7 @@
                     </p>
                     <p class="text-center mt-4">
                         Ce quiz est composé de {{sizeof(Auth::user()->etudiant->getEquipe()->qsession->quiz->questions)}} questions. <br>
-                        <span class="text-red-600">>Vous disposez de 15 secondes par question</span> <br>
+                        <span class="text-red-600">>Vous disposez de 49 secondes par question</span> <br>
                         <span class="text-red-600">>Les questions apparaissent une et une seule fois</span> <br>
                         <span class="text-red-600">>Si vous rafraichissez ou quittez la page durant le test, seules les questions <br>
                             auquelles vous avez répondues sont prises en compte et votre test prend fin.
@@ -188,8 +188,8 @@
 
                 function begin() {
                     Livewire.emit('openSession')
-                    document.getElementById('seconds').innerText = "25"
-                    document.getElementById('counts').innerText = "25"
+                    document.getElementById('seconds').innerText = "49"
+                    document.getElementById('counts').innerText = "49"
                     var count = setInterval(function() {
 
                         var sec = parseInt(document.getElementById('counts').innerText)
@@ -204,7 +204,7 @@
                             else
                                 Livewire.emit('storeAndExit')
 
-                            sec = 25
+                            sec = 49
                         }
 
                         if (sec < 10)
