@@ -167,16 +167,25 @@ class QuizController extends Controller
 {
     $session = Qsession::find(Auth::user()->etudiant->getEquipe()->qsession->id);
 
+    if (!$session) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Session introuvable'
+        ], 404);
+    }
+
     $score = QsessionResponse::where('qsession_id', $session->id)
         ->sum('score');
 
-    $session->score = $score;
+    $maxScore = $session->quiz->score;
+    $session->score = min($score, $maxScore);
+
     $session->save();
 
     return response()->json([
         'status' => true,
         'message' => 'ok',
-        'score' => $score
+        'score' => $session->score
     ]);
 }
 }
