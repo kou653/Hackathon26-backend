@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Qsession;
 use App\Models\Quiz;
-
+use App\Models\QsessionResponse;
 
 
 class QuizController extends Controller
@@ -164,27 +164,19 @@ class QuizController extends Controller
     }
     */
     public function submitquiz(Request $request)
-    {
-        if ($request->score == null) {
+{
+    $session = Qsession::find(Auth::user()->etudiant->getEquipe()->qsession->id);
 
-            $response = [
-                'status' => false,
-                'message' => "Remplissez tout les champs correctement",
-            ];
+    $score = QsessionResponse::where('qsession_id', $session->id)
+        ->sum('score');
 
-        } else {
+    $session->score = $score;
+    $session->save();
 
-            $session = Qsession::find(Auth::user()->etudiant->getEquipe()->qsession->id);
-            $session->score = $request->score;
-            $session->save();
-
-            $response = [
-                'status' => true,
-                'message' => "ok",
-            ];
-        }
-
-        return response()->json($response);
-
-    }
+    return response()->json([
+        'status' => true,
+        'message' => 'ok',
+        'score' => $score
+    ]);
+}
 }
