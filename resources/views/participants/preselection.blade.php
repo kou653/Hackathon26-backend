@@ -188,8 +188,8 @@
 
                 function begin() {
                     Livewire.emit('openSession')
-                    document.getElementById('seconds').innerText = "15"
-                    document.getElementById('counts').innerText = "15"
+                    document.getElementById('seconds').innerText = "25"
+                    document.getElementById('counts').innerText = "25"
                     var count = setInterval(function() {
 
                         var sec = parseInt(document.getElementById('counts').innerText)
@@ -204,7 +204,7 @@
                             else
                                 Livewire.emit('storeAndExit')
 
-                            sec = 15
+                            sec = 25
                         }
 
                         if (sec < 10)
