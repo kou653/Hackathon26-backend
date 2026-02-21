@@ -173,9 +173,14 @@ class QuizController extends Controller
             'message' => 'Session introuvable'
         ], 404);
     }
-
+    
     $score = QsessionResponse::where('qsession_id', $session->id)
+        ->where('state', 1)
         ->sum('score');
+
+    if ($score === 0 && $request->filled('score')) {
+        $score = (int) $request->score;
+    }
 
     $maxScore = $session->quiz->score;
     $session->score = min($score, $maxScore);

@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Participants;
 
 use App\Models\QsessionResponse;
+use App\Models\Response as QuizResponse;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
@@ -63,25 +64,33 @@ class Quiz extends Component
         $st = Auth::user()->etudiant->getEquipe()->qsession->quiz->questions[$this->current_index];
         $responses = QsessionResponse::where('qsession_id', $ss->id)->where('question_id', $st->id)->get();
 
+        // Backfill missing session-response rows for old sessions.
+        if ($responses->isEmpty()) {
+            $questionResponses = QuizResponse::where('question_id', $st->id)->get();
+            foreach ($questionResponses as $questionResponse) {
+                QsessionResponse::firstOrCreate(
+                    [
+                        'qsession_id' => $ss->id,
+                        'response_id' => $questionResponse->id,
+                        'question_id' => $st->id
+                    ],
+                    [
+                        'score' => $questionResponse->score,
+                        'state' => 0
+                    ]
+                );
+            }
+            $responses = QsessionResponse::where('qsession_id', $ss->id)->where('question_id', $st->id)->get();
+        }
+
         $sc = 0;
 
         foreach ($responses as $response) {
-
-            if ($this->sponses) {
-                if (array_key_exists($response->response_id, $this->sponses)) {
-
-                    if ($this->sponses[$response->response_id] == true) {
-                        $response->state = 1;
-                        $response->save();
-                        $sc += $response->score;
-                    } else {
-                        $response->state = 0;
-                        $response->save();
-                    }
-                } else {
-                    $response->state = 0;
-                    $response->save();
-                }
+            $isChecked = $this->sponses && array_key_exists($response->response_id, $this->sponses) && $this->sponses[$response->response_id] == true;
+            $response->state = $isChecked ? 1 : 0;
+            $response->save();
+            if ($isChecked) {
+                $sc += $response->score;
             }
         }
 
@@ -90,9 +99,6 @@ class Quiz extends Component
 
         $this->score += $sc;
         $ss->score = $this->score;
-        if ($ss->score == 0)
-            $ss->score = 1;
-
         $ss->save();
     }
 

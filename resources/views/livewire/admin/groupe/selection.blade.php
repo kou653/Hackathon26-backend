@@ -148,6 +148,12 @@
                                     @if($equipe->niveau->quiz_available)
 
                                     {{$equipe->qsession->score < 0 ? -$equipe->qsession->score : $equipe->qsession->score}} / {{$equipe->qsession->quiz->score}}
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <input type="number" min="0" wire:model.defer="manualScores.{{$equipe->id}}" class="w-20 px-2 py-1 border rounded" placeholder="score">
+                                        <button wire:click.prevent="setScore({{$equipe->id}})" class="px-2 py-1 text-xs font-bold uppercase border rounded-md cursor-pointer border-orange text-orange hover:bg-orange hover:text-white">
+                                            Enregistrer
+                                        </button>
+                                    </div>
 
                                     @endif
                                 </td>

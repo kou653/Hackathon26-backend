@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Crypt;
 
 use App\Models\Matricule;
 use App\Models\Qsession;
+use App\Models\QsessionResponse;
+use App\Models\Response as QuizResponse;
 use Livewire\Component;
 use App\Models\Classe;
 use App\Models\Niveau;
@@ -257,10 +259,27 @@ const ADMIN_NAME = 'admin';
                 ]);
 
                 if (Niveau::find($request->niveau)->quiz_available == 1) {
-                    Qsession::create([
-                        'quiz_id' => Quiz::where('niveau_id', $request->niveau)->first()->id,
+                    $quiz = Quiz::where('niveau_id', $request->niveau)->first();
+                    $qsession = Qsession::create([
+                        'quiz_id' => $quiz->id,
                         'equipe_id' => $equipe->id
-                    ]); 
+                    ]);
+
+                    // Initialize per-session responses so scoring works for new teams.
+                    $responses = QuizResponse::whereIn('question_id', $quiz->questions()->pluck('id'))->get();
+                    foreach ($responses as $responseModel) {
+                        QsessionResponse::firstOrCreate(
+                            [
+                                'qsession_id' => $qsession->id,
+                                'response_id' => $responseModel->id,
+                                'question_id' => $responseModel->question_id
+                            ],
+                            [
+                                'score' => $responseModel->score,
+                                'state' => 0
+                            ]
+                        );
+                    }
                 }
 
                 // creation du chef

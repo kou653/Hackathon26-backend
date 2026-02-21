@@ -11,6 +11,7 @@ use App\Models\Etudiant;
 use App\Models\RepSalle;
 use App\Models\Question;
 use App\Models\Response;
+use App\Models\QsessionResponse;
 use App\Models\Commande;
 use App\Models\Niveau;
 use App\Models\Classe;
@@ -748,6 +749,20 @@ class ParametrageController extends Controller
             $quiz = Quiz::where('niveau_id', $request->niveauId)->first();
             $quiz->score += $request->score;
             $quiz->save();
+
+            foreach ($quiz->qsessions as $qsession) {
+                QsessionResponse::firstOrCreate(
+                    [
+                        'qsession_id' => $qsession->id,
+                        'response_id' => $response->id,
+                        'question_id' => $response->question_id
+                    ],
+                    [
+                        'score' => $response->score,
+                        'state' => 0
+                    ]
+                );
+            }
 
             $response = [
                 'message' => "ok",

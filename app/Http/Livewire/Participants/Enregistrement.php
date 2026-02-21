@@ -11,6 +11,8 @@ use App\Models\Niveau;
 use App\Models\Participant;
 use App\Models\User;
 use App\Models\Qsession;
+use App\Models\QsessionResponse;
+use App\Models\Response as QuizResponse;
 use App\Models\Quiz;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -228,10 +230,27 @@ class Enregistrement extends Component
 
 
             if (Niveau::find($this->niveau)->quiz_available == 1) {
-                Qsession::create([
-                    'quiz_id' => Quiz::where('niveau_id', $this->niveau)->first()->id,
+                $quiz = Quiz::where('niveau_id', $this->niveau)->first();
+                $qsession = Qsession::create([
+                    'quiz_id' => $quiz->id,
                     'equipe_id' => $equipe->id
                 ]);
+
+                // Initialize per-session responses so scoring works for new teams.
+                $responses = QuizResponse::whereIn('question_id', $quiz->questions()->pluck('id'))->get();
+                foreach ($responses as $responseModel) {
+                    QsessionResponse::firstOrCreate(
+                        [
+                            'qsession_id' => $qsession->id,
+                            'response_id' => $responseModel->id,
+                            'question_id' => $responseModel->question_id
+                        ],
+                        [
+                            'score' => $responseModel->score,
+                            'state' => 0
+                        ]
+                    );
+                }
             }
             // creation du participant 1
 

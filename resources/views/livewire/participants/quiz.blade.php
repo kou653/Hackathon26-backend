@@ -26,7 +26,7 @@
                                                 <div class="flex items-center">
                                                     <div class="ml-4">
                                                         <div class="font-bold text-gray-900 text-md">
-                                                            <input wire:model="sponses.{{$response->id}}" type="checkbox" name="r{{$response->id}}" id="r{{$response->id}}" checked />
+                                                            <input wire:model="sponses.{{$response->id}}" type="checkbox" name="r{{$response->id}}" id="r{{$response->id}}" />
                                                         </div>
                                                     </div>
                                                     <div class="ml-4">

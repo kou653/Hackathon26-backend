@@ -20,6 +20,7 @@ class Selection extends Component
     public $afficher = '';
 
     public $nb_team = 1;
+    public $manualScores = [];
 
     public function render()
     {
@@ -36,6 +37,32 @@ class Selection extends Component
 
             'niveau' => Niveau::where('id', 'LIKE', "%{$this->niveauselect}%")->first()
         ]);
+    }
+
+    public function setScore(int $equipeId)
+    {
+        $equipe = Equipe::with('qsession')->find($equipeId);
+        if (!$equipe || !$equipe->qsession) {
+            return;
+        }
+
+        if (!array_key_exists($equipeId, $this->manualScores)) {
+            return;
+        }
+
+        $value = (int) $this->manualScores[$equipeId];
+        if ($value < 0) {
+            $value = 0;
+        }
+
+        $max = (int) $equipe->qsession->quiz->score;
+        if ($max > 0 && $value > $max) {
+            $value = $max;
+        }
+
+        $equipe->qsession->score = $value;
+        $equipe->qsession->state = 1;
+        $equipe->qsession->save();
     }
 
     public  function updatingStatut()
