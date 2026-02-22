@@ -15,6 +15,14 @@ class QuizController extends Controller
 
     public function renderquiz(Request $request)
     {
+        $user = Auth::user();
+        if (!in_array($user->etudiant->getEquipe()->niveau_id, [2, 3])) {
+            return response()->json([
+                'status' => false,
+                'message' => "Seules les equipes du niveau 2 et 3 peuvent passer ce test",
+            ], 403);
+        }
+
         $quiz = Quiz::with('questions.responses')->where('id', Auth::user()->etudiant->getEquipe()->qsession->quiz_id)->first();
 
         if ($quiz) {
@@ -86,6 +94,15 @@ class QuizController extends Controller
     {
         $user = Auth::user();
         $canpasstest = 0;
+
+        if (!in_array($user->etudiant->getEquipe()->niveau_id, [2, 3])) {
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'canpasstest' => 1
+                ]
+            ]);
+        }
 
         // if ($user->etudiant->getEquipe()->niveau_id != 1) {
         //     return response()->json([
@@ -165,6 +182,13 @@ class QuizController extends Controller
     */
     public function submitquiz(Request $request)
 {
+    if (!in_array(Auth::user()->etudiant->getEquipe()->niveau_id, [2, 3])) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Niveau non autorise pour ce test'
+        ], 403);
+    }
+
     $session = Qsession::find(Auth::user()->etudiant->getEquipe()->qsession->id);
 
     if (!$session) {
