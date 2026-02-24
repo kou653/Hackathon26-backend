@@ -6,7 +6,7 @@
 
     </x-slot>
 
-    @if(in_array(Auth::user()->etudiant->getEquipe()->niveau_id, [2, 3])) <div x-data="data()">
+    @if(in_array(Auth::user()->etudiant->getEquipe()->niveau_id, [4, 5, 6])) <div x-data="data()">
 
         <div x-show="!start" class="gap-4 px-6 py-12 md:grid md:grid-cols-6">
 
