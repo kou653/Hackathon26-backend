@@ -53,6 +53,13 @@ class ParticipantController extends Controller
     public function makecommande(Request $request)
     {
         $user = Auth::user();
+        $repasId = $request->input('repasId')
+            ?? $request->input('repaId')
+            ?? $request->input('repas_id')
+            ?? $request->input('repa_id');
+        $collationId = $request->input('collationId')
+            ?? $request->input('collation_id');
+
         if (!$user || !$user->etudiant) {
             return response()->json([
                 'status' => false,
@@ -67,21 +74,21 @@ class ParticipantController extends Controller
             ]);
         }
 
-        if (!$request->collationId && !$request->repasId) {
+        if (!$collationId && !$repasId) {
             return response()->json([
                 'status' => false,
                 'message' => 'Veuillez choisir au moins un plat ou une collation.',
             ]);
         }
 
-        if ($request->collationId && !Collation::where('id', $request->collationId)->exists()) {
+        if ($collationId && !Collation::where('id', $collationId)->exists()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Collation invalide.',
             ]);
         }
 
-        if ($request->repasId && !Repa::where('id', $request->repasId)->exists()) {
+        if ($repasId && !Repa::where('id', $repasId)->exists()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Plat invalide.',
@@ -114,7 +121,7 @@ class ParticipantController extends Controller
         $hasEquipeNom = Schema::hasColumn('commandes', 'equipe_nom');
         $hasSalleNom = Schema::hasColumn('commandes', 'salle_nom');
 
-        if (!$hasRepaId && !$request->collationId) {
+        if (!$hasRepaId && !$collationId) {
             return response()->json([
                 'status' => false,
                 'message' => 'Base non migree: choisissez une collation ou appliquez les migrations.',
@@ -124,11 +131,11 @@ class ParticipantController extends Controller
         $payload = [
             'etudiant_id' => $user->etudiant->id,
             'salle_id' => $salle->id,
-            'collation_id' => $request->collationId,
+            'collation_id' => $collationId,
         ];
 
         if ($hasRepaId) {
-            $payload['repa_id'] = $request->repasId;
+            $payload['repa_id'] = $repasId;
         }
         if ($hasParticipantNom) {
             $payload['participant_nom'] = trim($request->nom);

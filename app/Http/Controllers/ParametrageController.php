@@ -883,6 +883,7 @@ class ParametrageController extends Controller
             $participant = $participantsByEtudiant->get($commande->etudiant_id);
             $equipe = $participant ? $participant->equipe : null;
             $salle = $commande->salle;
+            $repa = $commande->repa ?: ($commande->repa_id ? Repa::find($commande->repa_id) : null);
 
             $participantNom = $commande->participant_nom;
             if (!$participantNom && $etudiant) {
@@ -915,7 +916,8 @@ class ParametrageController extends Controller
                 'participant_nom' => $commande->participant_nom,
                 'equipe_nom' => $commande->equipe_nom,
                 'salle_nom' => $commande->salle_nom,
-                'repa' => $commande->repa,
+                'repa' => $repa,
+                'repas' => $repa,
                 'collation' => $commande->collation,
                 'participant' => $participantData,
                 'etudiant' => $participantData,
