@@ -884,22 +884,27 @@ class ParametrageController extends Controller
             $equipe = $participant ? $participant->equipe : null;
             $salle = $commande->salle;
 
-            $participantData = $etudiant ? [
-                'id' => $etudiant->id,
-                'nom' => $etudiant->nom,
-                'prenom' => $etudiant->prenom,
-                'matricule' => $etudiant->matricule,
-            ] : null;
+            $participantNom = $commande->participant_nom;
+            if (!$participantNom && $etudiant) {
+                $participantNom = trim($etudiant->nom . ' ' . $etudiant->prenom);
+            }
 
-            $teamData = $equipe ? [
-                'id' => $equipe->id,
-                'nom' => $equipe->nom,
-            ] : null;
+            $participantData = [
+                'id' => $etudiant ? $etudiant->id : null,
+                'nom' => $participantNom,
+                'prenom' => $etudiant ? $etudiant->prenom : null,
+                'matricule' => $etudiant ? $etudiant->matricule : null,
+            ];
 
-            $roomData = $salle ? [
-                'id' => $salle->id,
-                'libelle' => $salle->libelle,
-            ] : null;
+            $teamData = [
+                'id' => $equipe ? $equipe->id : null,
+                'nom' => $commande->equipe_nom ?: ($equipe ? $equipe->nom : null),
+            ];
+
+            $roomData = [
+                'id' => $salle ? $salle->id : null,
+                'libelle' => $commande->salle_nom ?: ($salle ? $salle->libelle : null),
+            ];
 
             return [
                 'id' => $commande->id,
@@ -907,6 +912,9 @@ class ParametrageController extends Controller
                 'salle_id' => $commande->salle_id,
                 'repa_id' => $commande->repa_id,
                 'collation_id' => $commande->collation_id,
+                'participant_nom' => $commande->participant_nom,
+                'equipe_nom' => $commande->equipe_nom,
+                'salle_nom' => $commande->salle_nom,
                 'repa' => $commande->repa,
                 'collation' => $commande->collation,
                 'participant' => $participantData,
