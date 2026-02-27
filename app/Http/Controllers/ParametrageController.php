@@ -13,6 +13,7 @@ use App\Models\Question;
 use App\Models\Response;
 use App\Models\QsessionResponse;
 use App\Models\Commande;
+use App\Models\Participant;
 use App\Models\Niveau;
 use App\Models\Classe;
 use App\Models\Equipe;
@@ -860,8 +861,67 @@ class ParametrageController extends Controller
 
     public function rendercommandes()
     {
+        $hackaton = ModelsHackaton::where('inscription', 1)->first();
+        $commandes = Commande::with(['collation', 'repa', 'salle', 'etudiant'])
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $participantsByEtudiant = Participant::with('equipe')
+            ->whereIn('etudiant_id', $commandes->pluck('etudiant_id')->unique())
+            ->when($hackaton, function ($query) use ($hackaton) {
+                $query->where('hackaton_id', $hackaton->id);
+            })
+            ->orderBy('id', 'DESC')
+            ->get()
+            ->groupBy('etudiant_id')
+            ->map(function ($items) {
+                return $items->first();
+            });
+
+        $formattedCommandes = $commandes->map(function ($commande) use ($participantsByEtudiant) {
+            $etudiant = $commande->etudiant;
+            $participant = $participantsByEtudiant->get($commande->etudiant_id);
+            $equipe = $participant ? $participant->equipe : null;
+            $salle = $commande->salle;
+
+            $participantData = $etudiant ? [
+                'id' => $etudiant->id,
+                'nom' => $etudiant->nom,
+                'prenom' => $etudiant->prenom,
+                'matricule' => $etudiant->matricule,
+            ] : null;
+
+            $teamData = $equipe ? [
+                'id' => $equipe->id,
+                'nom' => $equipe->nom,
+            ] : null;
+
+            $roomData = $salle ? [
+                'id' => $salle->id,
+                'libelle' => $salle->libelle,
+            ] : null;
+
+            return [
+                'id' => $commande->id,
+                'etudiant_id' => $commande->etudiant_id,
+                'salle_id' => $commande->salle_id,
+                'repa_id' => $commande->repa_id,
+                'collation_id' => $commande->collation_id,
+                'repa' => $commande->repa,
+                'collation' => $commande->collation,
+                'participant' => $participantData,
+                'etudiant' => $participantData,
+                'equipe' => $teamData,
+                'team' => $teamData,
+                'salle' => $roomData,
+                'room' => $roomData,
+                'created_at' => $commande->created_at,
+                'updated_at' => $commande->updated_at,
+            ];
+        });
+
         $data = [
-            "commandes" => Commande::with('collation')->get()
+            'commandes' => $formattedCommandes,
         ];
 
         $response = [

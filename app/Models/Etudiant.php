@@ -56,7 +56,9 @@ class Etudiant extends Model
 
     public function Commande()
     {
-        $commande = Commande::where('etudiant_id', $this->id)->first();
+        $commande = Commande::where('etudiant_id', $this->id)
+            ->orderBy('created_at', 'DESC')
+            ->first();
 
         return $commande;
     }
