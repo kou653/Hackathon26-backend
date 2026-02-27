@@ -17,21 +17,21 @@ class ParticipantController extends Controller
     {
         $user = Auth::user();
         $qrcodeValue = Crypt::encryptString($user->etudiant->matricule);
-        $commande = $user->etudiant->Commande();
+        $commandes = Commande::with(['repa', 'collation'])
+            ->where('etudiant_id', $user->etudiant->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
         $data = [
             'qrcodeValue' => $qrcodeValue,
             'repas' => Repa::orderBy('created_at', 'DESC')->get(),
             'collations' => Collation::orderBy('created_at', 'DESC')->get(),
             'salles' => Salle::orderBy('libelle')->get(),
+            'commandes' => $commandes,
+            'commandes_count' => $commandes->count(),
+            // Toujours false pour que le front garde le formulaire actif (commande multiple autorisee)
+            'hasOrdered' => false,
         ];
-
-        if ($commande) {
-            $data['hasOrdered'] = true;
-            $data['commande'] = Commande::with(['repa', 'collation'])->find($commande->id);
-        } else {
-            $data['hasOrdered'] = false;
-        }
 
         $response = [
             'status' => true,
@@ -71,13 +71,6 @@ class ParticipantController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Veuillez choisir au moins un plat ou une collation.',
-            ]);
-        }
-
-        if ($user->etudiant->Commande()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Vous avez deja passe une commande.',
             ]);
         }
 
