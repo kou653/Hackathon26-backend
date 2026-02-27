@@ -9,6 +9,7 @@ use App\Models\Salle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Schema;
 
 class ParticipantController extends Controller
 {
@@ -52,6 +53,12 @@ class ParticipantController extends Controller
     public function makecommande(Request $request)
     {
         $user = Auth::user();
+        if (!$user || !$user->etudiant) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Utilisateur non autorise.',
+            ], 401);
+        }
 
         if (!$request->nom || !$request->equipe || !$request->salle) {
             return response()->json([
@@ -109,15 +116,46 @@ class ParticipantController extends Controller
             ]);
         }
 
-        Commande::create([
+        $hasRepaId = Schema::hasColumn('commandes', 'repa_id');
+        $hasParticipantNom = Schema::hasColumn('commandes', 'participant_nom');
+        $hasEquipeNom = Schema::hasColumn('commandes', 'equipe_nom');
+        $hasSalleNom = Schema::hasColumn('commandes', 'salle_nom');
+
+        if (!$hasRepaId && !$request->collationId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Base non migree: choisissez une collation ou appliquez les migrations.',
+            ], 422);
+        }
+
+        $payload = [
             'etudiant_id' => $user->etudiant->id,
             'salle_id' => $salle->id,
-            'repa_id' => $request->repasId,
             'collation_id' => $request->collationId,
-            'participant_nom' => trim($request->nom),
-            'equipe_nom' => trim($request->equipe),
-            'salle_nom' => trim($request->salle),
-        ]);
+        ];
+
+        if ($hasRepaId) {
+            $payload['repa_id'] = $request->repasId;
+        }
+        if ($hasParticipantNom) {
+            $payload['participant_nom'] = trim($request->nom);
+        }
+        if ($hasEquipeNom) {
+            $payload['equipe_nom'] = trim($request->equipe);
+        }
+        if ($hasSalleNom) {
+            $payload['salle_nom'] = trim($request->salle);
+        }
+
+        try {
+            Commande::create($payload);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Erreur serveur pendant lenregistrement de la commande.',
+                'error' => app()->environment('local') ? $e->getMessage() : null,
+            ], 500);
+        }
 
         return response()->json([
             'status' => true,
